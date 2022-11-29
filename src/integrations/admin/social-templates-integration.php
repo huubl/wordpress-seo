@@ -243,8 +243,6 @@ class Social_Templates_Integration implements Integration_Interface {
 		}
 
 		if ( ! $is_premium ) {
-			$wpseo_page = \filter_input( \INPUT_GET, 'page' );
-
 			echo '<div class="yoast-settings-section-upsell">';
 
 			echo '<a class="yoast-button-upsell" data-action="load-nfd-ctb" data-ctb-id="57d6a568-783c-45e2-a388-847cff155897" href="' . \esc_url( WPSEO_Shortlinker::get( 'https://yoa.st/4e0' ) ) . '" target="_blank">'
