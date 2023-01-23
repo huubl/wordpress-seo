@@ -245,6 +245,18 @@ Your question has most likely been answered on our help center: [yoast.com/help/
 
 == Changelog ==
 
+= 20.0 =
+
+Release date: 2023-01-24
+
+#### Enhancements
+
+* Improves the link focus styles in the first time configuration.
+
+#### Other
+
+* Displays a notification urging to upgrade Premium if the version is below 20.0, since some settings might be missing from the new user interface.
+
 = 19.14 =
 
 Release date: 2023-01-10
@@ -272,16 +284,6 @@ Yoast SEO 19.14 introduces the first round of improvements to the inclusive lang
 #### Other
 
 * Sets the minimum supported WordPress version to 6.0.
-
-= 19.13 =
-
-Yoast SEO 19.13 proactively fixes an issue we found in the upcoming release of the Gutenberg editor. This release of the block editor breaks the link functionality when used in conjunction with Yoast SEO. The Yoast SEO release works around that so users can keep adding and changing links. Find out more about what's new in Yoast SEO 19.13 in [our release post](https://yoa.st/release-20-12-22)!
-
-Release date: 2022-12-20
-
-#### Enhancements
-
-* Prevents an incompatibility with the upcoming Gutenberg 14.8.0.
 
 = Earlier versions =
 For the changelog of earlier versions, please refer to [the changelog on yoast.com](https://yoa.st/yoast-seo-changelog).
