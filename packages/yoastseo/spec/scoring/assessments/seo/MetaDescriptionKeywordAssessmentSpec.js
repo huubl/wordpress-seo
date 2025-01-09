@@ -1,7 +1,6 @@
-/* eslint-disable capitalized-comments, spaced-comment */
 import MetaDescriptionKeywordAssessment from "../../../../src/scoring/assessments/seo/MetaDescriptionKeywordAssessment";
 import Paper from "../../../../src/values/Paper";
-import Factory from "../../../specHelpers/factory";
+import Factory from "../../../../src/helpers/factory";
 import EnglishResearcher from "../../../../src/languageProcessing/languages/en/Researcher";
 import getMorphologyData from "../../../specHelpers/getMorphologyData";
 
@@ -124,7 +123,7 @@ describe( "a test for the meta description keyword assessment when the exact mat
 	} );
 
 
-	/*it( "returns a bad result when the meta description doesn't contain the exact match of the keyphrase in Japanese", function() {
+	/* it( "returns a bad result when the meta description doesn't contain the exact match of the keyphrase in Japanese", function() {
 		const mockPaper = new Paper( "", { keyword: "『小さい花の刺繍』",
 			synonyms: "野生のハーブの刺繡",
 			description: "小さくて可愛い花の刺繍に関する一般一般の記事です。私は美しい猫を飼っています。" }  );

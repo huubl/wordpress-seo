@@ -3,9 +3,8 @@ import * as constants from "./analysis/constants";
 import getContentLocale from "./analysis/getContentLocale";
 import getIndicatorForScore from "./analysis/getIndicatorForScore";
 import getL10nObject from "./analysis/getL10nObject";
-import isZapierConnected from "./analysis/isZapierConnected";
-import isZapierIntegrationActive from "./analysis/isZapierIntegrationActive";
 import * as refreshAnalysis from "./analysis/refreshAnalysis";
+import KeywordInput from "./components/contentAnalysis/KeywordInputComponent";
 import * as mapResults from "./components/contentAnalysis/mapResults";
 import HelpLink from "./components/HelpLink";
 import withYoastSidebarPriority from "./components/higherorder/withYoastSidebarPriority";
@@ -29,7 +28,7 @@ import * as i18n from "./helpers/i18n";
 import isBlockEditor from "./helpers/isBlockEditor";
 import * as replacementVariableHelpers from "./helpers/replacementVariableHelpers";
 import { update as updateAdminBar } from "./ui/adminBar";
-import { updateScore, createScoresInPublishBox, scrollToCollapsible } from "./ui/publishBox";
+import { createScoresInPublishBox, scrollToCollapsible, updateScore } from "./ui/publishBox";
 import { update as updateTrafficLight } from "./ui/trafficLight";
 
 window.yoast = window.yoast || {};
@@ -38,8 +37,6 @@ window.yoast.editorModules = {
 		getL10nObject,
 		getContentLocale,
 		getIndicatorForScore,
-		isZapierConnected,
-		isZapierIntegrationActive,
 		constants,
 		refreshAnalysis,
 	},
@@ -50,6 +47,7 @@ window.yoast.editorModules = {
 			withYoastSidebarPriority,
 		},
 		contentAnalysis: {
+			KeywordInput,
 			mapResults,
 		},
 		contexts: {

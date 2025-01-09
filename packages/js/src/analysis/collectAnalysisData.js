@@ -2,7 +2,9 @@ import { applyFilters } from "@wordpress/hooks";
 import {
 	cloneDeep,
 	merge,
+	get,
 } from "lodash";
+import { serialize } from "@wordpress/blocks";
 
 import measureTextWidth from "../helpers/measureTextWidth";
 import getContentLocale from "./getContentLocale";
@@ -10,36 +12,25 @@ import getWritingDirection from "./getWritingDirection";
 
 import { Paper } from "yoastseo";
 
+/* eslint-disable complexity */
 /**
- * Filters the WordPress block editor block data to use for the analysis.
+ * Maps the Gutenberg blocks to a format that can be used in the analysis.
  *
- * @param {Object} block The block from which we need to get the relevant data.
- *
- * @returns {Object} The block, with irrelevant data removed.
+ * @param {object[]} blocks The Gutenberg blocks.
+ * @returns {object[]} The mapped Gutenberg blocks.
  */
-function filterBlockData( block ) {
-	const filteredBlock = {};
-
-	// Main data of the block (content, but also heading level etc.)
-	filteredBlock.attributes = {};
-
-	// Heading level, HTML-content and image alt text.
-	const attributeNames = [ "level", "content", "alt" ];
-	attributeNames.forEach( name => {
-		if ( block.attributes[ name ] ) {
-			filteredBlock.attributes[ name ] = block.attributes[ name ];
+export const mapGutenbergBlocks = ( blocks ) => {
+	blocks = blocks.filter( block => block.isValid );
+	blocks = blocks.map( block => {
+		const serializedBlock = serialize( [ block ], { isInnerBlocks: false } );
+		block.blockLength = serializedBlock && serializedBlock.length;
+		if ( block.innerBlocks ) {
+			block.innerBlocks = mapGutenbergBlocks( block.innerBlocks );
 		}
+		return block;
 	} );
-
-	// Type of block, e.g. "core/paragraph"
-	filteredBlock.name = block.name;
-	filteredBlock.clientId = block.clientId;
-
-	// Recurse on inner blocks.
-	filteredBlock.innerBlocks = block.innerBlocks.map( innerBlock => filterBlockData( innerBlock ) );
-
-	return filteredBlock;
-}
+	return blocks;
+};
 
 /**
  * Retrieves the data needed for the analyses.
@@ -66,8 +57,8 @@ export default function collectAnalysisData( editorData, store, customAnalysisDa
 	// Retrieve the block editor blocks from WordPress and filter on useful information.
 	let blocks = null;
 	if ( blockEditorDataModule ) {
-		blocks = blockEditorDataModule.getBlocks();
-		blocks = blocks.map( block => filterBlockData( block ) );
+		blocks = blockEditorDataModule.getBlocks() || [];
+		blocks = mapGutenbergBlocks( blocks );
 	}
 
 	// Make a data structure for the paper data.
@@ -98,9 +89,15 @@ export default function collectAnalysisData( editorData, store, customAnalysisDa
 		data.wpBlocks = pluggable._applyModifications( "wpBlocks", data.wpBlocks );
 	}
 
-	data.titleWidth = measureTextWidth( data.title );
+	const filteredSEOTitle = storeData.analysisData.snippet.filteredSEOTitle;
+	// When measuring the SEO title width, we exclude the separator and the site title from the calculation.
+	data.titleWidth = measureTextWidth( filteredSEOTitle || storeData.snippetEditor.data.title );
 	data.locale = getContentLocale();
 	data.writingDirection = getWritingDirection();
+	data.shortcodes = window.wpseoScriptData.analysis.plugins.shortcodes
+		? window.wpseoScriptData.analysis.plugins.shortcodes.wpseo_shortcode_tags
+		: [];
+	data.isFrontPage = get( window, "wpseoScriptData.isFrontPage", "0" ) === "1";
 
 	return Paper.parse( applyFilters( "yoast.analysis.data", data ) );
 }

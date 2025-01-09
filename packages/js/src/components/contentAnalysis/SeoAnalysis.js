@@ -2,24 +2,25 @@
 import { withSelect } from "@wordpress/data";
 import { Component, Fragment } from "@wordpress/element";
 import { __, sprintf } from "@wordpress/i18n";
-import { YoastSeoIcon } from "@yoast/components";
+import { addQueryArgs } from "@wordpress/url";
+import { LocationConsumer, RootContext } from "@yoast/externals/contexts";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import getIndicatorForScore from "../../analysis/getIndicatorForScore";
-import getL10nObject from "../../analysis/getL10nObject";
 import Results from "../../containers/Results";
 import AnalysisUpsell from "../AnalysisUpsell";
-import { LocationConsumer, RootContext } from "@yoast/externals/contexts";
 import MetaboxCollapsible from "../MetaboxCollapsible";
-import { ModalContainer, ModalIcon } from "../modals/Container";
+import { ModalSmallContainer } from "../modals/Container";
 import KeywordSynonyms from "../modals/KeywordSynonyms";
+import { defaultModalClassName } from "../modals/Modal";
 import MultipleKeywords from "../modals/MultipleKeywords";
 import Modal from "../modals/SeoAnalysisModal";
 import ScoreIconPortal from "../portals/ScoreIconPortal";
 import SidebarCollapsible from "../SidebarCollapsible";
 import SynonymSlot from "../slots/SynonymSlot";
 import { getIconForScore } from "./mapResults";
-import { addQueryArgs } from "@wordpress/url";
+import isBlockEditor from "../../helpers/isBlockEditor";
+import AIAssessmentFixesButton from "../../ai-assessment-fixes/components/ai-assessment-fixes-button";
 
 const AnalysisHeader = styled.span`
 	font-size: 1em;
@@ -38,47 +39,32 @@ class SeoAnalysis extends Component {
 	 * @param {string} location The location of the upsell component. Used to determine the shortlinks in the component.
 	 * @param {string} locationContext In which editor this component is rendered.
 	 *
-	 * @returns {wp.Element} A modalButtonContainer component with the modal for a keyword synonyms upsell.
+	 * @returns {JSX.Element} A modalButtonContainer component with the modal for a keyword synonyms upsell.
 	 */
 	renderSynonymsUpsell( location, locationContext ) {
 		const modalProps = {
+			className: `${ defaultModalClassName } yoast-gutenberg-modal__box yoast-gutenberg-modal__no-padding`,
 			classes: {
 				openButton: "wpseo-keyword-synonyms button-link",
 			},
 			labels: {
 				open: "+ " + __( "Add synonyms", "wordpress-seo" ),
-				modalAriaLabel: sprintf(
-					/* translators: %s expands to 'Yoast SEO Premium'. */
-					__( "Get %s", "wordpress-seo" ),
-					"Yoast SEO Premium"
-				),
-				heading: sprintf(
-					/* translators: %s expands to 'Yoast SEO Premium'. */
-					__( "Get %s", "wordpress-seo" ),
-					"Yoast SEO Premium"
-				),
+				modalAriaLabel: __( "Add synonyms", "wordpress-seo" ),
+				heading: __( "Add synonyms", "wordpress-seo" ),
 			},
 		};
 
-		// Defaults to metabox.
-		let link = wpseoAdminL10n[ "shortlinks.upsell.metabox.focus_keyword_synonyms_link" ];
-		let buyLink = wpseoAdminL10n[ "shortlinks.upsell.metabox.focus_keyword_synonyms_button" ];
-
-		if ( location.toLowerCase() === "sidebar" ) {
-			link = wpseoAdminL10n[ "shortlinks.upsell.sidebar.focus_keyword_synonyms_link" ];
-			buyLink = wpseoAdminL10n[ "shortlinks.upsell.sidebar.focus_keyword_synonyms_button" ];
-		}
-		link = addQueryArgs( link, { context: locationContext } );
-		buyLink = addQueryArgs( buyLink, { context: locationContext } );
+		const buyLink = wpseoAdminL10n[
+			location.toLowerCase() === "sidebar"
+				? "shortlinks.upsell.sidebar.focus_keyword_synonyms_button"
+				: "shortlinks.upsell.metabox.focus_keyword_synonyms_button"
+		];
 
 		return (
 			<Modal { ...modalProps }>
-				<ModalContainer>
-					<ModalIcon icon={ YoastSeoIcon } />
-					<h2>{ __( "Would you like to add keyphrase synonyms?", "wordpress-seo" ) }</h2>
-
-					<KeywordSynonyms link={ link } buyLink={ buyLink } />
-				</ModalContainer>
+				<ModalSmallContainer>
+					<KeywordSynonyms buyLink={ addQueryArgs( buyLink, { context: locationContext } ) } />
+				</ModalSmallContainer>
 			</Modal>
 		);
 	}
@@ -87,48 +73,34 @@ class SeoAnalysis extends Component {
 	 * Renders the multiple keywords upsell modal.
 	 *
 	 * @param {string} location The location of the upsell component. Used to determine the shortlinks in the component.
+	 * @param {string} locationContext In which editor this component is rendered.
 	 *
-	 * @returns {wp.Element} A modalButtonContainer component with the modal for a multiple keywords upsell.
+	 * @returns {JSX.Element} A modalButtonContainer component with the modal for a multiple keywords upsell.
 	 */
-	renderMultipleKeywordsUpsell( location ) {
+	renderMultipleKeywordsUpsell( location, locationContext ) {
 		const modalProps = {
+			className: `${ defaultModalClassName } yoast-gutenberg-modal__box yoast-gutenberg-modal__no-padding`,
 			classes: {
 				openButton: "wpseo-multiple-keywords button-link",
 			},
 			labels: {
 				open: "+ " + __( "Add related keyphrase", "wordpress-seo" ),
-				modalAriaLabel: sprintf(
-					/* translators: %s expands to 'Yoast SEO Premium'. */
-					__( "Get %s", "wordpress-seo" ),
-					"Yoast SEO Premium"
-				),
-				heading: sprintf(
-					/* translators: %s expands to 'Yoast SEO Premium'. */
-					__( "Get %s", "wordpress-seo" ),
-					"Yoast SEO Premium"
-				),
+				modalAriaLabel: __( "Add related keyphrases", "wordpress-seo" ),
+				heading: __( "Add related keyphrases", "wordpress-seo" ),
 			},
 		};
 
-		// Defaults to metabox
-		let link = wpseoAdminL10n[ "shortlinks.upsell.metabox.focus_keyword_additional_link" ];
-		let buyLink = wpseoAdminL10n[ "shortlinks.upsell.metabox.focus_keyword_additional_button" ];
-
-		if ( location.toLowerCase() === "sidebar" ) {
-			link = wpseoAdminL10n[ "shortlinks.upsell.sidebar.focus_keyword_additional_link" ];
-			buyLink = wpseoAdminL10n[ "shortlinks.upsell.sidebar.focus_keyword_additional_button" ];
-		}
+		const buyLink = wpseoAdminL10n[
+			location.toLowerCase() === "sidebar"
+				? "shortlinks.upsell.sidebar.focus_keyword_additional_button"
+				: "shortlinks.upsell.metabox.focus_keyword_additional_button"
+		];
 
 		return (
 			<Modal { ...modalProps }>
-				<ModalContainer>
-					<ModalIcon icon={ YoastSeoIcon } />
-					<h2>{ __( "Would you like to add a related keyphrase?", "wordpress-seo" ) }</h2>
-					<MultipleKeywords
-						link={ link }
-						buyLink={ buyLink }
-					/>
-				</ModalContainer>
+				<ModalSmallContainer>
+					<MultipleKeywords buyLink={ addQueryArgs( buyLink, { context: locationContext } ) } />
+				</ModalSmallContainer>
 			</Modal>
 		);
 	}
@@ -139,7 +111,7 @@ class SeoAnalysis extends Component {
 	 * @param {string} location The location of the upsell component. Used to determine the shortlink in the component.
 	 * @param {string} locationContext In which editor this component is rendered.
 	 *
-	 * @returns {wp.Element} The AnalysisUpsell component.
+	 * @returns {JSX.Element} The AnalysisUpsell component.
 	 */
 	renderWordFormsUpsell( location, locationContext ) {
 		let url = location === "sidebar"
@@ -160,7 +132,7 @@ class SeoAnalysis extends Component {
 	 * @param {string} location       Where this component is rendered.
 	 * @param {string} scoreIndicator String indicating the score.
 	 *
-	 * @returns {wp.Element} The rendered score icon portal element.
+	 * @returns {JSX.Element} The rendered score icon portal element.
 	 */
 	renderTabIcon( location, scoreIndicator ) {
 		// The tab icon should only be rendered for the metabox.
@@ -218,14 +190,48 @@ class SeoAnalysis extends Component {
 		];
 	}
 
+	/* eslint-disable complexity */
+	/**
+	 * Renders the Yoast AI Optimize button.
+	 * The button is shown when:
+	 * - The assessment can be fixed through Yoast AI Optimize.
+	 * - The AI feature is enabled (for Yoast SEO Premium users; for Free users, the button is shown with an upsell).
+	 * - We are in the block editor.
+	 * - We are not in the Elementor editor, nor in the Elementor in-between screen.
+	 *
+	 * @param {boolean} hasAIFixes Whether the assessment can be fixed through Yoast AI Optimize.
+	 * @param {string} id The assessment ID.
+	 *
+	 * @returns {void|JSX.Element} The AI Optimize button, or nothing if the button should not be shown.
+	 */
+	renderAIFixesButton = ( hasAIFixes, id ) => {
+		const { isElementor, isAiFeatureEnabled, isPremium } = this.props;
+
+		// Don't show the button if the AI feature is not enabled for Yoast SEO Premium users.
+		if ( isPremium && ! isAiFeatureEnabled ) {
+			return;
+		}
+
+		const isElementorEditorPageActive =  document.body.classList.contains( "elementor-editor-active" );
+		const isNotElementorPage =  ! isElementor && ! isElementorEditorPageActive;
+
+		// The reason of adding the check if Elementor is active or not is because `isBlockEditor` method also returns `true` for Elementor.
+		// The reason of adding the check if the Elementor editor is active, is to stop showing the buttons in the in-between screen.
+		return hasAIFixes && isBlockEditor() && isNotElementorPage && (
+			<AIAssessmentFixesButton id={ id } isPremium={ isPremium } />
+		);
+	};
+	/* eslint-enable complexity */
+
 	/**
 	 * Renders the SEO Analysis component.
 	 *
-	 * @returns {wp.Element} The SEO Analysis component.
+	 * @returns {JSX.Element} The SEO Analysis component.
 	 */
 	render() {
 		const score = getIndicatorForScore( this.props.overallScore );
-		const isPremium = getL10nObject().isPremium;
+		const { isPremium } = this.props;
+		const highlightingUpsellLink = "shortlinks.upsell.sidebar.highlighting_seo_analysis";
 
 		if ( score.className !== "loading" && this.props.keyword === "" ) {
 			score.className = "na";
@@ -260,7 +266,7 @@ class SeoAnalysis extends Component {
 											<SynonymSlot location={ location } />
 											{ this.props.shouldUpsell && <Fragment>
 												{ this.renderSynonymsUpsell( location, locationContext ) }
-												{ this.renderMultipleKeywordsUpsell( location ) }
+												{ this.renderMultipleKeywordsUpsell( location, locationContext ) }
 											</Fragment> }
 											{ this.props.shouldUpsellWordFormRecognition && this.renderWordFormsUpsell( location, locationContext ) }
 											<AnalysisHeader>
@@ -273,6 +279,9 @@ class SeoAnalysis extends Component {
 												editButtonClassName="yoast-tooltip yoast-tooltip-w"
 												marksButtonStatus={ this.props.marksButtonStatus }
 												location={ location }
+												shouldUpsellHighlighting={ this.props.shouldUpsellHighlighting }
+												highlightingUpsellLink={ highlightingUpsellLink }
+												renderAIFixesButton={ this.renderAIFixesButton }
 											/>
 										</Collapsible>
 										{ this.renderTabIcon( location, score.className ) }
@@ -294,6 +303,10 @@ SeoAnalysis.propTypes = {
 	shouldUpsell: PropTypes.bool,
 	shouldUpsellWordFormRecognition: PropTypes.bool,
 	overallScore: PropTypes.number,
+	shouldUpsellHighlighting: PropTypes.bool,
+	isElementor: PropTypes.bool,
+	isAiFeatureEnabled: PropTypes.bool,
+	isPremium: PropTypes.bool,
 };
 
 SeoAnalysis.defaultProps = {
@@ -303,6 +316,10 @@ SeoAnalysis.defaultProps = {
 	shouldUpsell: false,
 	shouldUpsellWordFormRecognition: false,
 	overallScore: null,
+	shouldUpsellHighlighting: false,
+	isElementor: false,
+	isAiFeatureEnabled: false,
+	isPremium: false,
 };
 
 export default withSelect( ( select, ownProps ) => {
@@ -310,6 +327,9 @@ export default withSelect( ( select, ownProps ) => {
 		getFocusKeyphrase,
 		getMarksButtonStatus,
 		getResultsForKeyword,
+		getIsElementorEditor,
+		getIsPremium,
+		getIsAiFeatureEnabled,
 	} = select( "yoast-seo/editor" );
 
 	const keyword = getFocusKeyphrase();
@@ -318,5 +338,8 @@ export default withSelect( ( select, ownProps ) => {
 		...getResultsForKeyword( keyword ),
 		marksButtonStatus: ownProps.hideMarksButtons ? "disabled" : getMarksButtonStatus(),
 		keyword,
+		isElementor: getIsElementorEditor(),
+		isPremium: getIsPremium(),
+		isAiFeatureEnabled: getIsAiFeatureEnabled(),
 	};
 } )( SeoAnalysis );

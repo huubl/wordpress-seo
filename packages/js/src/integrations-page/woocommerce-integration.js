@@ -75,7 +75,7 @@ export const WoocommerceIntegration = ( {
 					target="_blank"
 				>
 					<LockOpenIcon
-						className="yst--ml-1 yst-mr-2 yst-h-5 yst-w-5 yst-text-yellow-900"
+						className="yst--ms-1 yst-me-2 yst-h-5 yst-w-5 yst-text-yellow-900"
 					/>
 					{
 						sprintf(
@@ -86,6 +86,7 @@ export const WoocommerceIntegration = ( {
 					}
 					<span className="yst-sr-only">
 						{
+							/* translators: Hidden accessibility text. */
 							__( "(Opens in a new browser tab)", "wordpress-seo" )
 						}
 					</span>
@@ -99,7 +100,7 @@ export const WoocommerceIntegration = ( {
 WoocommerceIntegration.propTypes = {
 	integration: PropTypes.shape( {
 		name: PropTypes.string,
-		claim: PropTypes.string,
+		claim: PropTypes.node,
 		slug: PropTypes.string,
 		description: PropTypes.string,
 		usps: PropTypes.array,

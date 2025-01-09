@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import SocialInputSection from "./social-input-section";
 import Alert from "../../base/alert";
 
-/* eslint-disable max-len, react/prop-types */
 /**
  * Social profiles step component
  *
@@ -44,11 +43,12 @@ export default function SocialProfilesStep( { state, dispatch, setErrorFields } 
 			"</a>"
 
 		),
-		{   // eslint-disable-next-line jsx-a11y/anchor-has-content
+		{	// eslint-disable-next-line jsx-a11y/anchor-has-content
 			a: <a
 				id="yoast-configuration-person-social-profiles-user-link"
 				href={ window.wpseoScriptData.userEditUrl.replace( "{user_id}", state.personId ) }
 				target="_blank" rel="noopener noreferrer"
+				data-hiive-event-name="clicked_update_or_add_profile | social profiles"
 			/>,
 		} );
 
@@ -61,7 +61,7 @@ export default function SocialProfilesStep( { state, dispatch, setErrorFields } 
 		return <Fragment>
 			<p>{
 				__(
-					"We need a little more help from you! Add your organization's Facebook and Twitter profile so we can optimize the metadata for those platforms too.",
+					"Fantastic work! Add your organization's social media accounts below. This allows us to fine-tune the metadata for these platforms.",
 					"wordpress-seo"
 				)
 			}</p>
@@ -82,7 +82,9 @@ export default function SocialProfilesStep( { state, dispatch, setErrorFields } 
 			{ /* No person has been selected in step 2 */ }
 			<Alert type="info" className="yst-mt-5">
 				{
-					// translators: please note that "Site representation" here refers to the name of a step in the first-time configuration, so this occurrence needs to be translated in the same manner as that step's heading.
+					/* translators: please note that "Site representation" here refers to the name of a step in the first-time configuration,
+					 * so this occurrence needs to be translated in the same manner as that step's heading.
+					 */
 					__(
 						"Please select a user in the Site representation step.",
 						"wordpress-seo"

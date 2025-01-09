@@ -65,6 +65,8 @@ const InclusiveLanguageAnalysis = ( props ) => {
 	 * @returns {JSX.Element} The results of the analysis.
 	 */
 	function renderResults() {
+		const highlightingUpsellLink = "shortlinks.upsell.sidebar.highlighting_inclusive_analysis";
+
 		return (
 			<Fragment>
 				<AnalysisHeader>
@@ -74,7 +76,10 @@ const InclusiveLanguageAnalysis = ( props ) => {
 						className="dashicons"
 					>
 						<span className="screen-reader-text">
-							{ __( "Learn more about the inclusive language analysis", "wordpress-seo" ) }
+							{
+								/* translators: Hidden accessibility text. */
+								__( "Learn more about the inclusive language analysis", "wordpress-seo" )
+							}
 						</span>
 					</StyledHelpLink>
 				</AnalysisHeader>
@@ -83,9 +88,11 @@ const InclusiveLanguageAnalysis = ( props ) => {
 					marksButtonClassName="yoast-tooltip yoast-tooltip-w"
 					marksButtonStatus={ props.marksButtonStatus }
 					resultCategoryLabels={ {
-						problems: __( "Non-inclusive phrases", "wordpress-seo" ),
-						improvements: __( "Potentially non-inclusive phrases", "wordpress-seo" ),
+						problems: __( "Non-inclusive", "wordpress-seo" ),
+						improvements: __( "Potentially non-inclusive", "wordpress-seo" ),
 					} }
+					highlightingUpsellLink={ highlightingUpsellLink }
+					shouldUpsellHighlighting={ props.shouldUpsellHighlighting }
 				/>
 			</Fragment>
 		);
@@ -113,7 +120,6 @@ const InclusiveLanguageAnalysis = ( props ) => {
 	 */
 	function renderMultilingualPluginDetectedNotice() {
 		const notice = __(
-			// eslint-disable-next-line max-len
 			"We noticed that you are using a multilingual plugin. Please be aware that this analysis feedback is intended only for texts written in English.",
 			"wordpress-seo"
 		);
@@ -137,7 +143,10 @@ const InclusiveLanguageAnalysis = ( props ) => {
 						className="dashicons"
 					>
 						<span className="screen-reader-text">
-							{ __( "Learn more about the inclusive language analysis", "wordpress-seo" ) }
+							{
+								/* translators: Hidden accessibility text. */
+								__( "Learn more about the inclusive language analysis", "wordpress-seo" )
+							}
 						</span>
 					</StyledHelpLink>
 				</AnalysisHeader>
@@ -223,14 +232,15 @@ const InclusiveLanguageAnalysis = ( props ) => {
 InclusiveLanguageAnalysis.propTypes = {
 	results: PropTypes.array,
 	// `marksButtonStatus` is used, but not recognized by ESLint.
-	// eslint-disable-next-line react/no-unused-prop-types
 	marksButtonStatus: PropTypes.oneOf( [ "enabled", "disabled", "hidden" ] ).isRequired,
 	overallScore: PropTypes.number,
+	shouldUpsellHighlighting: PropTypes.bool,
 };
 
 InclusiveLanguageAnalysis.defaultProps = {
 	results: [],
 	overallScore: null,
+	shouldUpsellHighlighting: false,
 };
 
 export default withSelect( select => {

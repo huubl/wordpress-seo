@@ -12,7 +12,7 @@ export function getEditorContext( state ) {
 }
 
 /**
- * Returns whether your or on a page or post.
+ * Returns whether you're on a page or post.
  *
  * @param {Object} state The state.
  *
@@ -20,6 +20,29 @@ export function getEditorContext( state ) {
  */
 export function getPostOrPageString( state ) {
 	return get( state, "editorContext.postTypeNameSingular" ) === "Page" ? "page" : "post";
+}
+
+/**
+ * Returns whether you're editing a product.
+ *
+ * @param {Object} state The state.
+ *
+ * @returns {boolean} Whether you're editing a product.
+ */
+export function getIsProduct( state ) {
+	return get( state, "editorContext.postType" ) === "product";
+}
+
+/**
+ * Returns whether you're editing a product term.
+ *
+ * @param {Object} state The state.
+ *
+ * @returns {boolean} Whether you're editing a product term.
+ */
+export function getIsProductTerm( state ) {
+	const termType = get( state, "editorContext.termType" );
+	return termType === "product_cat" || termType === "product_tag";
 }
 
 /**
@@ -42,6 +65,17 @@ export function getIsBlockEditor( state ) {
  */
 export function getIsElementorEditor( state ) {
 	return get( state, "editorContext.isElementorEditor", false );
+}
+
+/**
+ * Returns whether this is the current page is frontpage or not.
+ *
+ * @param {Object} state The state.
+ *
+ * @returns {Boolean} Whether this is a frontpage.
+ */
+export function getIsFrontPage( state ) {
+	return get( state, "editorContext.isFrontPage", false );
 }
 
 /**

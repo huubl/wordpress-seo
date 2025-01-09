@@ -1,4 +1,5 @@
 import Paper from "../../src/values/Paper.js";
+import Node from "../../src/parse/structure/Node";
 
 describe( "Paper", function() {
 	describe( "Creating a Paper", function() {
@@ -206,7 +207,6 @@ describe( "Paper", function() {
 			expect( paper.hasText() ).toBeTruthy();
 		} );
 		it( "should return true if contains only html tag", function() {
-			// eslint-disable-next-line max-len
 			const paper = new Paper( "<img src=\"https://yoast.com/cdn-cgi/image/width=466%2Cheight=244%2Cfit=crop%2Cf=auto%2Conerror=redirect//app/uploads/2017/12/Focus_keyword_FI.jpg\">" );
 			expect( paper.hasText() ).toBeTruthy();
 		} );
@@ -267,6 +267,16 @@ describe( "Paper", function() {
 			it( "does not contain the _parseClass", () => {
 				expect( paper._attributes._parseClass ).not.toBeDefined();
 			} );
+		} );
+	} );
+	describe( "A test for setters and getters", function() {
+		it( "should properly set and get a tree.", function() {
+			const tree = new Node( "a" );
+			const mockPaper = new Paper( "" );
+
+			mockPaper.setTree( tree );
+			expect( mockPaper._tree ).toEqual( tree );
+			expect( mockPaper.getTree() ).toEqual( tree );
 		} );
 	} );
 } );

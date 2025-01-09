@@ -1,37 +1,36 @@
-/* eslint-disable max-statements,complexity */
+/* eslint-disable complexity */
 // External dependencies.
-import { autop } from "@wordpress/autop";
 import { enableFeatures } from "@yoast/feature-flag";
 import { __, setLocaleData, sprintf } from "@wordpress/i18n";
-import { forEach, has, includes, isEmpty, isNull, isObject, isString, isUndefined, merge, pickBy } from "lodash-es";
+import { forEach, has, includes, isEmpty, isEqual, isNull, isObject, isString, isUndefined, merge, pickBy } from "lodash";
 import { getLogger } from "loglevel";
 
-// YoastSEO.js dependencies.
-import SEOAssessor from "../scoring/seoAssessor";
-import ContentAssessor from "../scoring/contentAssessor";
-import TaxonomyAssessor from "../scoring/taxonomyAssessor";
-
-import Paper from "../values/Paper";
-import AssessmentResult from "../values/AssessmentResult";
-import RelatedKeywordAssessor from "../scoring/relatedKeywordAssessor";
-import removeHtmlBlocks from "../languageProcessing/helpers/html/htmlParser";
-import InclusiveLanguageAssessor from "../scoring/inclusiveLanguageAssessor";
-
 // Internal dependencies.
-import CornerstoneContentAssessor from "../scoring/cornerstone/contentAssessor";
-import CornerstoneRelatedKeywordAssessor from "../scoring/cornerstone/relatedKeywordAssessor";
-import CornerstoneSEOAssessor from "../scoring/cornerstone/seoAssessor";
-import InvalidTypeError from "../errors/invalidType";
-import MissingArgumentError from "../errors/missingArgument";
-import includesAny from "../helpers/includesAny";
+import AssessmentResult from "../values/AssessmentResult.js";
+import { build } from "../parse/build";
 import { configureShortlinker } from "../helpers/shortlinker";
-import RelatedKeywordTaxonomyAssessor from "../scoring/relatedKeywordTaxonomyAssessor";
+import InvalidTypeError from "../errors/invalidType.js";
+import includesAny from "../helpers/includesAny.js";
+import LanguageProcessor from "../parse/language/LanguageProcessor.js";
+import MissingArgumentError from "../errors/missingArgument.js";
+import Paper from "../values/Paper.js";
 import Scheduler from "./scheduler";
 import Transporter from "./transporter";
-import wrapTryCatchAroundAction from "./wrapTryCatchAroundAction";
+import wrapTryCatchAroundAction from "./wrapTryCatchAroundAction.js";
+
+// Assessor classes.
+import ContentAssessor from "../scoring/assessors/contentAssessor.js";
+import CornerstoneContentAssessor from "../scoring/assessors/cornerstone/contentAssessor.js";
+import CornerstoneRelatedKeywordAssessor from "../scoring/assessors/cornerstone/relatedKeywordAssessor.js";
+import CornerstoneSEOAssessor from "../scoring/assessors/cornerstone/seoAssessor.js";
+import InclusiveLanguageAssessor from "../scoring/assessors/inclusiveLanguageAssessor.js";
+import RelatedKeywordAssessor from "../scoring/assessors/relatedKeywordAssessor.js";
+import RelatedKeywordTaxonomyAssessor from "../scoring/assessors/relatedKeywordTaxonomyAssessor.js";
+import SEOAssessor from "../scoring/assessors/seoAssessor.js";
+import TaxonomyAssessor from "../scoring/assessors/taxonomyAssessor.js";
 
 // Tree assessor functionality.
-import { ReadabilityScoreAggregator, SEOScoreAggregator } from "../parsedPaper/assess/scoreAggregators";
+import { ReadabilityScoreAggregator, SEOScoreAggregator } from "../scoring/scoreAggregators";
 
 const logger = getLogger( "yoast-analysis-worker" );
 logger.setDefaultLevel( "error" );
@@ -951,6 +950,16 @@ export default class AnalysisWebWorker {
 			return true;
 		}
 
+		if ( this._paper.getKeyword() !== paper.getKeyword() ) {
+			return true;
+		}
+
+		// Perform deep comparison between the list of Gutenberg blocks as we want to update the readability analysis
+		// if the client IDs of the blocks inside `wpBlocks` change.
+		if ( ! isEqual( this._paper._attributes.wpBlocks, paper._attributes.wpBlocks ) ) {
+			return true;
+		}
+
 		return this._paper.getLocale() !== paper.getLocale();
 	}
 
@@ -1069,9 +1078,6 @@ export default class AnalysisWebWorker {
 	 * @returns {Object} The result, may not contain readability or seo.
 	 */
 	async analyze( id, { paper, relatedKeywords = {} } ) {
-		// Automatically add paragraph tags, like Wordpress does, on blocks padded by double newlines or html elements.
-		paper._text = autop( paper._text );
-		paper._text = removeHtmlBlocks( paper._text );
 		const paperHasChanges = this._paper === null || ! this._paper.equals( paper );
 		const shouldReadabilityUpdate = this.shouldReadabilityUpdate( paper );
 		const shouldInclusiveLanguageUpdate = this.shouldInclusiveLanguageUpdate( paper );
@@ -1082,18 +1088,9 @@ export default class AnalysisWebWorker {
 			this._paper = paper;
 			this._researcher.setPaper( this._paper );
 
-			// Try to build the tree, for analysis using the tree assessors.
-			try {
-				/*
-				 * Disabled tree.
-				 * Please not that text here should be the `paper._text` before processing (e.g. autop and more).
-				 * this._tree = this._treeBuilder.build( text );
-				 */
-			} catch ( exception ) {
-				logger.debug( "Yoast SEO and readability analysis: " +
-							  "An error occurred during the building of the tree structure used for some assessments.\n\n", exception );
-				this._tree = null;
-			}
+			const languageProcessor = new LanguageProcessor( this._researcher );
+			const shortcodes = this._paper._attributes && this._paper._attributes.shortcodes;
+			this._paper.setTree( build( this._paper, languageProcessor, shortcodes ) );
 
 			// Update the configuration locale to the paper locale.
 			this.setLocale( this._paper.getLocale() );
@@ -1216,7 +1213,7 @@ export default class AnalysisWebWorker {
 
 		result.setScore( -1 );
 		result.setText( sprintf(
-			/* Translators: %1$s expands to the name of the assessment. */
+			/* translators: %1$s expands to the name of the assessment. */
 			__( "An error occurred in the '%1$s' assessment", "wordpress-seo" ),
 			assessment.name
 		) );
@@ -1412,6 +1409,13 @@ export default class AnalysisWebWorker {
 		if ( paper !== null ) {
 			researcher.setPaper( paper );
 			researcher.addResearchData( "morphology", morphologyData );
+
+			// Build and set the tree if it's not been set before.
+			if ( paper.getTree() === null ) {
+				const languageProcessor = new LanguageProcessor( researcher );
+				const shortcodes = paper._attributes && paper._attributes.shortcodes;
+				paper.setTree( build( paper, languageProcessor, shortcodes ) );
+			}
 		}
 
 		return researcher.getResearch( name );

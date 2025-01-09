@@ -2,12 +2,12 @@ import DefaultResearcher from "../../../../src/languageProcessing/languages/_def
 import ItalianResearcher from "../../../../src/languageProcessing/languages/it/Researcher";
 import SentenceBeginningsAssessment from "../../../../src/scoring/assessments/readability/SentenceBeginningsAssessment.js";
 import Paper from "../../../../src/values/Paper.js";
-import Factory from "../../../specHelpers/factory.js";
+import Factory from "../../../../src/helpers/factory.js";
 import Mark from "../../../../src/values/Mark.js";
 import EnglishResearcher from "../../../../src/languageProcessing/languages/en/Researcher";
 
 let paper = new Paper();
-// eslint-disable-next-line max-statements
+
 describe( "An assessment for scoring repeated sentence beginnings.", function() {
 	it( "scores one instance with 4 consecutive sentences starting with the same word.", function() {
 		const assessment = new SentenceBeginningsAssessment().getResult( paper, Factory.buildMockResearcher( [ { word: "hey", count: 2 },

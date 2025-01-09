@@ -4,15 +4,15 @@ import withPersistentDismiss from "./withPersistentDismiss";
 
 /**
  * @param {string} id The id.
- * @param {boolean} hasIcon Wether or not to show icon before title.
- * @param {string} title The title.
+ * @param {boolean} hasIcon Whether or not to show icon before title.
+ * @param {object | string} title The title.
  * @param {JSX.Element|null} image The image or null if no image.
- * @param {isAlertDismissed} boolean Wether or not the notification is dismissed.
+ * @param {boolean} isAlertDismissed Whether or not the notification is dismissed.
  * @param {Function} onDismissed The dismissal prop to be renamed for Notification component.
  *
  * @returns {Component} The composed Notification component.
  */
-const PersistentDismissableNotification = ( {
+export const PersistentDismissableNotification = ( {
 	children,
 	id,
 	hasIcon = true,
@@ -22,19 +22,26 @@ const PersistentDismissableNotification = ( {
 	onDismissed,
 } ) => {
 	return isAlertDismissed ? null : (
-		<div id={ id } className="notice-yoast yoast is-dismissible">
+		<div id={ id } className="notice-yoast yoast is-dismissible yoast-webinar-dashboard yoast-general-page-notices">
 			<div className="notice-yoast__container">
 				<div>
 					<div className="notice-yoast__header">
 						{ hasIcon && <span className="yoast-icon" /> }
-						<h2 className="notice-yoast__header-heading">{ title }</h2>
+						<h2 className="notice-yoast__header-heading yoast-notice-migrated-header">{ title }</h2>
 					</div>
-					<p>{ children }</p>
+					<div className="notice-yoast-content">
+						<p>{ children }</p>
+					</div>
 				</div>
 				{ Image && <Image height="60" /> }
 			</div>
-			<button className="notice-dismiss" onClick={ onDismissed }>
-				<span className="screen-reader-text">{ __( "Dismiss this notice.", "wordpress-seo" ) }</span>
+			<button type="button" className="notice-dismiss" onClick={ onDismissed }>
+				<span className="screen-reader-text">
+					{
+						/* translators: Hidden accessibility text. */
+						__( "Dismiss this notice.", "wordpress-seo" )
+					}
+				</span>
 			</button>
 		</div>
 	);
@@ -44,7 +51,7 @@ PersistentDismissableNotification.propTypes = {
 	children: PropTypes.node.isRequired,
 	id: PropTypes.string.isRequired,
 	hasIcon: PropTypes.bool,
-	title: PropTypes.string.isRequired,
+	title: PropTypes.any.isRequired,
 	image: PropTypes.elementType,
 	isAlertDismissed: PropTypes.bool.isRequired,
 	onDismissed: PropTypes.func.isRequired,

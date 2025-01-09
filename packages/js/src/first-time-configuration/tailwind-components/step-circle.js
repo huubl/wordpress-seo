@@ -3,7 +3,6 @@ import { useState, useEffect } from "@wordpress/element";
 import PropTypes from "prop-types";
 import { stepperTimingClasses } from "../stepper-helper";
 import { useStepperContext } from "./stepper";
-/* eslint-disable complexity */
 
 const { slideDuration, delayUntilStepFaded } = stepperTimingClasses;
 const commonCircleClasses = `yst-transition-opacity ${ slideDuration } yst-absolute yst-inset-0 yst-border-2 yst-flex yst-items-center yst-justify-center yst-rounded-full`;
@@ -51,7 +50,7 @@ ActiveCircle.defaultProps = {
  *
  * @returns {WPElement} The SavedCircle element
  */
-export function SavedCircle( { isVisible } ) {
+function SavedCircle( { isVisible } ) {
 	return <span
 		className={ `yst-bg-primary-500 yst-border-primary-500 ${ getCommonClasses( isVisible ) }` }
 	>
@@ -75,7 +74,7 @@ SavedCircle.defaultProps = {
  *
  * @returns {WPElement} The UpcomingCircle element
  */
-export function UpcomingCircle( { isVisible } ) {
+function UpcomingCircle( { isVisible } ) {
 	return <span
 		className={ `yst-bg-white yst-border-slate-300 ${ getCommonClasses( isVisible ) }` }
 	>

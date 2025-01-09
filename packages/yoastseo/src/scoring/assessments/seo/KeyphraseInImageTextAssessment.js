@@ -1,5 +1,5 @@
 import { __, _n, sprintf } from "@wordpress/i18n";
-import { merge } from "lodash-es";
+import { merge } from "lodash";
 
 import Assessment from "../assessment";
 import { inRangeStartEndInclusive } from "../../helpers/assessments/inRange.js";
@@ -126,7 +126,7 @@ export default class KeyphraseInImagesAssessment extends Assessment {
 			return {
 				score: this._config.scores.withAlt,
 				resultText: sprintf(
-					/* Translators: %1$s and %2$s expand to links on yoast.com, %3$s expands to the anchor end tag */
+					/* translators: %1$s and %2$s expand to links on yoast.com, %3$s expands to the anchor end tag */
 					__(
 						"%1$sImage Keyphrase%3$s: Images on this page have alt attributes, but you have not set your keyphrase. %2$sFix that%3$s!",
 						"wordpress-seo"
@@ -143,9 +143,8 @@ export default class KeyphraseInImagesAssessment extends Assessment {
 			return {
 				score: this._config.scores.withAltNonKeyword,
 				resultText: sprintf(
-					/* Translators: %1$s and %2$s expand to links on yoast.com, %3$s expands to the anchor end tag */
+					/* translators: %1$s and %2$s expand to links on yoast.com, %3$s expands to the anchor end tag */
 					__(
-						// eslint-disable-next-line max-len
 						"%1$sImage Keyphrase%3$s: Images on this page do not have alt attributes with at least half of the words from your keyphrase. %2$sFix that%3$s!",
 						"wordpress-seo"
 					),
@@ -161,13 +160,11 @@ export default class KeyphraseInImagesAssessment extends Assessment {
 			return {
 				score: this._config.scores.withAltTooFewKeywordMatches,
 				resultText: sprintf(
-					/* Translators: %1$d expands to the number of images containing an alt attribute with the keyword,
+					/* translators: %1$d expands to the number of images containing an alt attribute with the keyword,
 					 * %2$d expands to the total number of images, %3$s and %4$s expand to links on yoast.com,
 					 * %5$s expands to the anchor end tag. */
 					_n(
-						// eslint-disable-next-line max-len
 						"%3$sImage Keyphrase%5$s: Out of %2$d images on this page, only %1$d has an alt attribute that reflects the topic of your text. %4$sAdd your keyphrase or synonyms to the alt tags of more relevant images%5$s!",
-						// eslint-disable-next-line max-len
 						"%3$sImage Keyphrase%5$s: Out of %2$d images on this page, only %1$d have alt attributes that reflect the topic of your text. %4$sAdd your keyphrase or synonyms to the alt tags of more relevant images%5$s!",
 						this.altProperties.withAltKeyword,
 						"wordpress-seo"
@@ -189,7 +186,7 @@ export default class KeyphraseInImagesAssessment extends Assessment {
 			return {
 				score: this._config.scores.withAltGoodNumberOfKeywordMatches,
 				resultText: sprintf(
-					/* Translators: %1$s expands to a link on yoast.com,
+					/* translators: %1$s expands to a link on yoast.com,
 					 * %2$s expands to the anchor end tag. */
 					__(
 						"%1$sImage Keyphrase%2$s: Good job!",
@@ -205,11 +202,10 @@ export default class KeyphraseInImagesAssessment extends Assessment {
 			return {
 				score: this._config.scores.withAltTooManyKeywordMatches,
 				resultText: sprintf(
-					/* Translators: %1$d expands to the number of images containing an alt attribute with the keyword,
+					/* translators: %1$d expands to the number of images containing an alt attribute with the keyword,
                      * %2$d expands to the total number of images, %3$s and %4$s expand to a link on yoast.com,
 					 * %5$s expands to the anchor end tag. */
 					__(
-						// eslint-disable-next-line max-len
 						"%3$sImage Keyphrase%5$s: Out of %2$d images on this page, %1$d have alt attributes with words from your keyphrase or synonyms. That's a bit much. %4$sOnly include the keyphrase or its synonyms when it really fits the image%5$s.",
 						"wordpress-seo"
 					),
@@ -226,9 +222,8 @@ export default class KeyphraseInImagesAssessment extends Assessment {
 		return {
 			score: this._config.scores.noAlt,
 			resultText: sprintf(
-				/* Translators: %1$s and %2$s expand to links on yoast.com, %3$s expands to the anchor end tag */
+				/* translators: %1$s and %2$s expand to links on yoast.com, %3$s expands to the anchor end tag */
 				__(
-					// eslint-disable-next-line max-len
 					"%1$sImage Keyphrase%3$s: Images on this page do not have alt attributes that reflect the topic of your text. %2$sAdd your keyphrase or synonyms to the alt tags of relevant images%3$s!",
 					"wordpress-seo"
 				),

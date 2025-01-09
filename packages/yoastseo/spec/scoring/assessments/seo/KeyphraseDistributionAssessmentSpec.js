@@ -2,12 +2,26 @@ import KeyphraseDistributionAssessment from "../../../../src/scoring/assessments
 import keyphraseDistribution from "../../../../src/languageProcessing/researches/keyphraseDistribution";
 import EnglishResearcher from "../../../../src/languageProcessing/languages/en/Researcher";
 import Paper from "../../../../src/values/Paper.js";
-import Factory from "../../../specHelpers/factory.js";
+import Factory from "../../../../src/helpers/factory.js";
 import Mark from "../../../../src/values/Mark.js";
 
 const keyphraseDistributionAssessment = new KeyphraseDistributionAssessment();
 
 describe( "An assessment to check the keyphrase distribution in the text", function() {
+	it( "returns `hasAIFixes` to be true when the result is not good", function() {
+		const mockPaper = new Paper( "a string", { keyword: "keyword" } );
+		const assessment = keyphraseDistributionAssessment.getResult(
+			mockPaper,
+			Factory.buildMockResearcher( {
+				keyphraseDistributionScore: 100,
+				sentencesToHighlight: [],
+			} )
+		);
+
+		expect( assessment.getScore() ).toEqual( 0 );
+		expect( assessment.hasAIFixes() ).toBeTruthy();
+	} );
+
 	it( "returns a 'consideration' score when no keyword occurs", function() {
 		const mockPaper = new Paper( "a string", { keyword: "keyword" } );
 		const assessment = keyphraseDistributionAssessment.getResult(
@@ -131,6 +145,17 @@ describe( "Checks if the assessment is applicable", function() {
 		expect( isAssessmentApplicable ).toBe( false );
 	} );
 
+	it( "is not applicable to papers with more than 15 sentences when the sentences are inside an element that should" +
+		"be excluded from the analysis", function() {
+		const mockPaper = new Paper( "<blockquote>" + "Lorem ipsum dolor sit amet. ".repeat( 16 ) + "</blockquote>",
+			{ keyword: "keyword" } );
+		researcher.setPaper( mockPaper );
+
+		const isAssessmentApplicable = keyphraseDistributionAssessment.isApplicable( mockPaper, researcher );
+
+		expect( isAssessmentApplicable ).toBe( false );
+	} );
+
 	it( "is not applicable when the researcher doesn't have the research", function() {
 		const mockPaper = new Paper( "Lorem ipsum dolor sit amet, vim illum aeque" +
 			" constituam at. Id latine tritani alterum pro. Ei quod stet affert sed. Usu putent fabellas suavitate id." +
@@ -147,6 +172,16 @@ describe( "Checks if the assessment is applicable", function() {
 			" Oratio vocibus offendit an mei, est esse pericula liberavisse.", { keyword: "keyword" } );
 		researcher.setPaper( mockPaper );
 		delete researcher.customResearches.keyphraseDistribution;
+		const assessmentIsApplicable = keyphraseDistributionAssessment.isApplicable( mockPaper, researcher );
+
+		expect( assessmentIsApplicable ).toBe( false );
+	} );
+
+	it( "should not be applicable to a text consisting only of shortcodes", function() {
+		const shortcodeSentence = "[shortcode]".repeat( 15 ) + ". ";
+		const mockPaper = new Paper( shortcodeSentence.repeat( 15 ), { shortcodes: [ "shortcode" ] } );
+		researcher.setPaper( mockPaper );
+
 		const assessmentIsApplicable = keyphraseDistributionAssessment.isApplicable( mockPaper, researcher );
 
 		expect( assessmentIsApplicable ).toBe( false );
@@ -212,5 +247,26 @@ describe( "A test for marking keywords in the text", function() {
 				} )
 		);
 		expect( keyphraseDistributionAssessment.getMarks() ).toEqual( [] );
+	} );
+} );
+
+describe( "a test for retrieving the feedback texts", () => {
+	it( "should return the custom feedback texts when `callbacks.getResultTexts` is provided", () => {
+		const assessment = new KeyphraseDistributionAssessment( {
+			callbacks: {
+				getResultTexts: () => ( {
+					good: "The text has a good keyphrase distribution.",
+					okay: "Some parts of your text do not contain the keyphrase or its synonyms. Distribute them more evenly.",
+					bad: "Very uneven. Large parts of your text do not contain the keyphrase or its synonyms. Distribute them more evenly.",
+					consideration: "Include your keyphrase or its synonyms in the text so that we can check keyphrase distribution.",
+				} ),
+			},
+		} );
+		expect( assessment.getFeedbackStrings() ).toEqual( {
+			good: "The text has a good keyphrase distribution.",
+			okay: "Some parts of your text do not contain the keyphrase or its synonyms. Distribute them more evenly.",
+			bad: "Very uneven. Large parts of your text do not contain the keyphrase or its synonyms. Distribute them more evenly.",
+			consideration: "Include your keyphrase or its synonyms in the text so that we can check keyphrase distribution.",
+		} );
 	} );
 } );

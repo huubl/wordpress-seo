@@ -1,4 +1,3 @@
-/* eslint-disable complexity */
 import { useEffect, useMemo } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import { Notifications as NotificationsUi } from "@yoast/ui-library";
@@ -6,7 +5,7 @@ import { useFormikContext } from "formik";
 import { get, map } from "lodash";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { useDispatchSettings, useSelectSettings } from "../hooks";
+import { useDispatchSettings, useSelectSettings, useNewContentTypeNotification } from "../hooks";
 import { flattenObject } from "../utils";
 
 /**
@@ -47,7 +46,7 @@ const ValidationErrorsNotification = ( { id, onDismiss, ...props } ) => {
 
 	return (
 		<NotificationsUi.Notification key={ id } id={ id } onDismiss={ onDismiss } { ...props }>
-			<ul className="yst-list-disc yst-mt-1 yst-ml-4 yst-space-y-2">
+			<ul className="yst-list-disc yst-mt-1 yst-ms-4 yst-space-y-2">
 				{ map( flatErrors, ( error, name ) => error && (
 					<li key={ name }>
 						<Link to={ `${ get( searchIndex, `${ name }.route`, "404" ) }#${ get( searchIndex, `${ name }.fieldId`, "" ) }` }>
@@ -73,12 +72,15 @@ ValidationErrorsNotification.propTypes = {
  */
 const Notifications = () => {
 	useValidationErrorsNotification();
+	useNewContentTypeNotification();
 	const { removeNotification } = useDispatchSettings();
 	const notifications = useSelectSettings( "selectNotifications" );
+
 	const enrichedNotifications = useMemo( () => map( notifications, notification => ( {
 		...notification,
 		onDismiss: removeNotification,
 		autoDismiss: notification.variant === "success" ? 5000 : null,
+		/* translators: Hidden accessibility text. */
 		dismissScreenReaderLabel: __( "Dismiss", "wordpress-seo" ),
 	} ) ), [ notifications ] );
 

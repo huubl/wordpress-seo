@@ -1,11 +1,12 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
-import { forwardRef, Fragment } from "@wordpress/element";
 import classNames from "classnames";
 import PropTypes from "prop-types";
-import { useSvgAria } from "../../hooks";
-import { ModalContext, useModalContext } from "./hooks";
+import React, { forwardRef, Fragment } from "react";
 import { classNameMap as titleClassNameMap } from "../../elements/title";
+import { useSvgAria } from "../../hooks";
+import { Container } from "./container";
+import { ModalContext, useModalContext } from "./hooks";
 
 /**
  * @param {JSX.node} children Title text.
@@ -31,16 +32,18 @@ const Title = forwardRef( ( { children, size, className, as, ...props }, ref ) =
 	);
 } );
 
-Title.defaultProps = {
-	className: "",
-	as: "h1",
-};
-
+Title.displayName = "Modal.Title";
 Title.propTypes = {
 	size: PropTypes.oneOf( Object.keys( titleClassNameMap.size ) ),
 	className: PropTypes.string,
 	children: PropTypes.node.isRequired,
 	as: PropTypes.elementType,
+};
+Title.defaultProps = {
+	// eslint-disable-next-line no-undefined
+	size: undefined,
+	className: "",
+	as: "h1",
 };
 
 /**
@@ -76,11 +79,17 @@ const Panel = forwardRef( ( { children, className = "", hasCloseButton = true, c
 	);
 } );
 
+Panel.displayName = "Modal.Panel";
 Panel.propTypes = {
 	children: PropTypes.node.isRequired,
 	className: PropTypes.string,
 	hasCloseButton: PropTypes.bool,
 	closeButtonScreenReaderText: PropTypes.string,
+};
+Panel.defaultProps = {
+	className: "",
+	hasCloseButton: true,
+	closeButtonScreenReaderText: "Close",
 };
 
 export const classNameMap = {
@@ -96,11 +105,20 @@ export const classNameMap = {
  * @param {JSX.node} children Contents of the modal.
  * @param {string} [className] Additional class names.
  * @param {string} [position] Modal screen position. See `classNameMap.position` for the options.
+ * @param {function|Object|null} [initialFocus] The ref of the element to focus initially.
  * @param {Object} [props] Additional Dialog props.
  * @returns {JSX.Element} The modal.
  */
-const Modal = forwardRef( ( { isOpen, onClose, children, className = "", position = "center", ...props }, ref ) => (
-	<ModalContext.Provider value={ { isOpen, onClose } }>
+const Modal = forwardRef( ( {
+	isOpen,
+	onClose,
+	children,
+	className = "",
+	position = "center",
+	initialFocus = null,
+	...props
+}, ref ) => (
+	<ModalContext.Provider value={ { isOpen, onClose, initialFocus } }>
 		<Transition.Root show={ isOpen } as={ Fragment }>
 			{ /* Using the `yst-root` class here to get our styling within the portal. */ }
 			<Dialog
@@ -109,6 +127,7 @@ const Modal = forwardRef( ( { isOpen, onClose, children, className = "", positio
 				className="yst-root"
 				open={ isOpen }
 				onClose={ onClose }
+				initialFocus={ initialFocus }
 				{ ...props }
 			>
 				<div className={ classNames( "yst-modal", classNameMap.position[ position ], className ) }>
@@ -142,20 +161,25 @@ const Modal = forwardRef( ( { isOpen, onClose, children, className = "", positio
 	</ModalContext.Provider>
 ) );
 
+Modal.displayName = "Modal";
 Modal.propTypes = {
 	isOpen: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
 	children: PropTypes.node.isRequired,
 	className: PropTypes.string,
 	position: PropTypes.oneOf( Object.keys( classNameMap.position ) ),
+	initialFocus: PropTypes.oneOfType( [ PropTypes.func, PropTypes.object ] ),
+};
+Modal.defaultProps = {
+	className: "",
+	position: "center",
+	initialFocus: null,
 };
 
-Modal.displayName = "Modal";
 Modal.Panel = Panel;
-Modal.Panel.displayName = "Modal.Panel";
 Modal.Title = Title;
-Modal.Title.displayName = "Modal.Title";
 Modal.Description = Dialog.Description;
 Modal.Description.displayName = "Modal.Description";
+Modal.Container = Container;
 
 export default Modal;

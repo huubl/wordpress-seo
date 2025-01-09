@@ -1,6 +1,14 @@
-import collectAnalysisData from "../src/analysis/collectAnalysisData";
+import { serialize } from "@wordpress/blocks";
+import collectAnalysisData, { mapGutenbergBlocks } from "../src/analysis/collectAnalysisData";
 import gutenbergBlocks from "./__test-data__/gutenbergBlocksTestData";
-import expectedBlocks from "./__test-data__/blocksForAnalysisTestData";
+
+const originalWindow = { ...window };
+const windowSpy = jest.spyOn( global, "window", "get" );
+windowSpy.mockImplementation( () => ( {
+	...originalWindow,
+	// eslint-disable-next-line camelcase
+	wpseoScriptData: { analysis: { plugins: { shortcodes: { wpseo_shortcode_tags: [] } } } },
+} ) );
 
 describe( "collectAnalysisData", () => {
 	const storeData = {
@@ -84,7 +92,7 @@ describe( "collectAnalysisData", () => {
 		return { getBlocks: () => blocks };
 	}
 
-	it( "filters the content from blocks", () => {
+	it( "should not filter the content from blocks", () => {
 		const edit = mockEdit( "<p>some content</p>" );
 		const store = mockStore( storeData );
 		const customData = mockCustomAnalysisData();
@@ -94,7 +102,7 @@ describe( "collectAnalysisData", () => {
 		const results = collectAnalysisData( edit, store, customData, pluggable, blockEditorDataModule );
 
 		expect( results ).toHaveProperty( "_attributes.wpBlocks" );
-		expect( results._attributes.wpBlocks ).toEqual( expectedBlocks );
+		expect( results._attributes.wpBlocks ).toEqual( gutenbergBlocks );
 	} );
 
 	it( "does not add wpBlocks if no blockEditorDataModule is added", () => {
@@ -121,5 +129,49 @@ describe( "collectAnalysisData", () => {
 		collectAnalysisData( edit, store, customData, pluggable );
 
 		expect( pluggable._applyModifications ).not.toBeCalled();
+	} );
+} );
+
+jest.mock( "@wordpress/blocks", () => ( {
+	serialize: jest.fn(),
+} ) );
+
+describe( "mapGutenbergBlocks", () => {
+	it( "should return an empty array if input blocks array is empty", () => {
+		const blocks = [];
+		const result = mapGutenbergBlocks( blocks );
+		expect( result ).toEqual( [] );
+	} );
+
+	it( "should filter out invalid blocks", () => {
+		const blocks = [
+			{ isValid: true, innerBlocks: [] },
+			{ isValid: false, innerBlocks: [] },
+		];
+		const result = mapGutenbergBlocks( blocks );
+		expect( result ).toHaveLength( 1 );
+	} );
+
+	it( "should calculate blockLength for each block", () => {
+		const blocks = [
+			{ isValid: true, innerBlocks: [] },
+		];
+		const mockSerializedBlock = "serialized block";
+		serialize.mockImplementation( jest.fn().mockReturnValue( mockSerializedBlock ) );
+		const result = mapGutenbergBlocks( blocks );
+		expect( result[ 0 ].blockLength ).toEqual( mockSerializedBlock.length );
+	} );
+
+	it( "should recursively map inner blocks", () => {
+		const blocks = [
+			{
+				isValid: true,
+				innerBlocks: [
+					{ isValid: true, innerBlocks: [] },
+				],
+			},
+		];
+		const result = mapGutenbergBlocks( blocks );
+		expect( result[ 0 ].innerBlocks[ 0 ] ).toHaveProperty( "blockLength" );
 	} );
 } );

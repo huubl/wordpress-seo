@@ -66,7 +66,7 @@ const expectedResults = {
 	textLength: {
 		isApplicable: true,
 		score: 9,
-		resultText: "<a href='https://yoa.st/34n' target='_blank'>Text length</a>: The text contains 1232 words. Good job!",
+		resultText: "<a href='https://yoa.st/34n' target='_blank'>Text length</a>: The text contains 1231 words. Good job!",
 	},
 	externalLinks: {
 		isApplicable: true,
@@ -118,8 +118,8 @@ const expectedResults = {
 	},
 	textParagraphTooLong: {
 		isApplicable: true,
-		score: 9,
-		resultText: "<a href='https://yoa.st/35d' target='_blank'>Paragraph length</a>: None of the paragraphs are too long. Great job!",
+		score: 3,
+		resultText: "<a href='https://yoa.st/35d' target='_blank'>Paragraph length</a>: 3 of the paragraphs contain more than the recommended maximum number of words (150). <a href='https://yoa.st/35e' target='_blank'>Shorten your paragraphs</a>!",
 	},
 	textSentenceLength: {
 		isApplicable: true,
