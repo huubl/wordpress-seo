@@ -1,4 +1,4 @@
-import { createInterpolateElement, useMemo, useCallback } from "@wordpress/element";
+import { createInterpolateElement, useMemo, useCallback, useEffect } from "@wordpress/element";
 import { __, sprintf } from "@wordpress/i18n";
 import { Badge, Code, FeatureUpsell, Link, ToggleField } from "@yoast/ui-library";
 import { useFormikContext } from "formik";
@@ -16,7 +16,7 @@ import {
 } from "../../components";
 import { safeToLocaleLower } from "../../helpers";
 import { withFormikDummyField } from "../../hocs";
-import { useSelectSettings } from "../../hooks";
+import { useSelectSettings, useDispatchSettings } from "../../hooks";
 
 const FormikReplacementVariableEditorFieldWithDummy = withFormikDummyField( FormikReplacementVariableEditorField );
 
@@ -24,9 +24,11 @@ const FormikReplacementVariableEditorFieldWithDummy = withFormikDummyField( Form
  * @param {string} name The taxonomy name.
  * @param {string} label The taxonomy label (plural).
  * @param {string[]} postTypes The connected post types.
+ * @param {boolean} showUi Whether the taxonomy has a UI.
+ * @param {boolean} isNew Whether the taxonomy is new.
  * @returns {JSX.Element} The taxonomy element.
  */
-const Taxonomy = ( { name, label, postTypes: postTypeNames, showUi } ) => {
+const Taxonomy = ( { name, label, postTypes: postTypeNames, showUi, isNew } ) => {
 	const postTypes = useSelectSettings( "selectPostTypes", [ postTypeNames ], postTypeNames );
 	const premiumUpsellConfig = useSelectSettings( "selectUpsellSettingsAsProps" );
 	const replacementVariables = useSelectSettings( "selectReplacementVariablesFor", [ name ], name, "term-in-custom-taxonomy" );
@@ -42,6 +44,13 @@ const Taxonomy = ( { name, label, postTypes: postTypeNames, showUi } ) => {
 	const postTypeValues = useMemo( () => values( postTypes ), [ postTypes ] );
 	const initialPostTypeValues = useMemo( () => initial( postTypeValues ), [ postTypeValues ] );
 	const lastPostTypeValue = useMemo( () => last( postTypeValues ), [ postTypeValues ] );
+	const { updateTaxonomyReviewStatus } = useDispatchSettings();
+
+	useEffect( () => {
+		if ( isNew ) {
+			updateTaxonomyReviewStatus( name );
+		}
+	}, [ name, updateTaxonomyReviewStatus ] );
 
 	const recommendedSize = useMemo( () => createInterpolateElement(
 		sprintf(
@@ -168,7 +177,6 @@ const Taxonomy = ( { name, label, postTypes: postTypeNames, showUi } ) => {
 					<FieldsetLayout
 						title={ __( "Search appearance", "wordpress-seo" ) }
 						description={ sprintf(
-							// eslint-disable-next-line max-len
 							// translators: %1$s expands to the post type plural, e.g. Posts. %2$s expands to "Yoast SEO".
 							__( "Determine what your %1$s should look like in the search results by default. You can always customize the settings for individual %1$s in the %2$s metabox.", "wordpress-seo" ),
 							labelLower,
@@ -219,11 +227,10 @@ const Taxonomy = ( { name, label, postTypes: postTypeNames, showUi } ) => {
 					<hr className="yst-my-8" />
 					<FieldsetLayout
 						title={ <div className="yst-flex yst-items-center yst-gap-1.5">
-							<span>{ __( "Social appearance", "wordpress-seo" ) }</span>
+							<span>{ __( "Social media appearance", "wordpress-seo" ) }</span>
 							{ isPremium && <Badge variant="upsell">Premium</Badge> }
 						</div> }
 						description={ sprintf(
-						// eslint-disable-next-line max-len
 						// translators: %1$s expands to the taxonomy plural, e.g. Categories. %2$s expand to Yoast SEO.
 							__( "Determine how your %1$s should look on social media by default. You can always customize the settings for individual %1$s in the %2$s metabox.", "wordpress-seo" ),
 							labelLower,
@@ -296,6 +303,7 @@ Taxonomy.propTypes = {
 	label: PropTypes.string.isRequired,
 	postTypes: PropTypes.arrayOf( PropTypes.string ).isRequired,
 	showUi: PropTypes.bool.isRequired,
+	isNew: PropTypes.bool.isRequired,
 };
 
 export default Taxonomy;

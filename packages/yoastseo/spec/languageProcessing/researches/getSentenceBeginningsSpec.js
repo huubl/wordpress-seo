@@ -1,6 +1,4 @@
-/* eslint-disable capitalized-comments, spaced-comment */
 import getSentenceBeginnings from "../../../src/languageProcessing/researches/getSentenceBeginnings";
-
 import Paper from "../../../src/values/Paper.js";
 import EnglishResearcher from "../../../src/languageProcessing/languages/en/Researcher";
 import FrenchResearcher from "../../../src/languageProcessing/languages/fr/Researcher";
@@ -8,7 +6,6 @@ import SpanishResearcher from "../../../src/languageProcessing/languages/es/Rese
 import GreekResearcher from "../../../src/languageProcessing/languages/el/Researcher";
 import JapaneseResearcher from "../../../src/languageProcessing/languages/ja/Researcher";
 
-// eslint-disable-next-line max-statements
 describe( "gets the sentence beginnings and the count of consecutive duplicates.", function() {
 	let mockPaper = new Paper( "How are you? Bye!" );
 	let researcher = new EnglishResearcher( mockPaper );
@@ -105,6 +102,34 @@ describe( "gets the sentence beginnings and the count of consecutive duplicates.
 		expect( getSentenceBeginnings( mockPaper, researcher ) ).toEqual( [] );
 	} );
 
+	it( "ignores sentences inside a code element", function() {
+		mockPaper = new Paper( "Cats are fluffy. Dogs are happy. <code>Unicorns can't code</code>" );
+		researcher = new EnglishResearcher( mockPaper );
+
+		const sentenceBeginnings = getSentenceBeginnings( mockPaper, researcher );
+
+		expect( sentenceBeginnings ).toHaveLength( 2 );
+		expect( getSentenceBeginnings( mockPaper, researcher )[ 0 ].word ).toBe( "cats" );
+		expect( getSentenceBeginnings( mockPaper, researcher )[ 0 ].count ).toBe( 1 );
+		expect( getSentenceBeginnings( mockPaper, researcher )[ 1 ].word ).toBe( "dogs" );
+		expect( getSentenceBeginnings( mockPaper, researcher )[ 1 ].count ).toBe( 1 );
+	} );
+
+	it( "ignores shortcodes", function() {
+		mockPaper = new Paper( "Cats are fluffy. Dogs are happy. [shortcode]Unicorns cant code.", { shortcodes: [ "shortcode" ] } );
+		researcher = new EnglishResearcher( mockPaper );
+
+		const sentenceBeginnings = getSentenceBeginnings( mockPaper, researcher );
+
+		expect( sentenceBeginnings ).toHaveLength( 3 );
+		expect( getSentenceBeginnings( mockPaper, researcher )[ 0 ].word ).toBe( "cats" );
+		expect( getSentenceBeginnings( mockPaper, researcher )[ 0 ].count ).toBe( 1 );
+		expect( getSentenceBeginnings( mockPaper, researcher )[ 1 ].word ).toBe( "dogs" );
+		expect( getSentenceBeginnings( mockPaper, researcher )[ 1 ].count ).toBe( 1 );
+		expect( getSentenceBeginnings( mockPaper, researcher )[ 2 ].word ).toBe( "unicorns" );
+		expect( getSentenceBeginnings( mockPaper, researcher )[ 2 ].count ).toBe( 1 );
+	} );
+
 	it( "returns an object with English sentence beginnings with paragraph tags - it should match over paragraphs", function() {
 		mockPaper = new Paper( "<p>Sentence 1. Sentence 2.</p><p>Sentence 3.</p>" );
 		researcher = new EnglishResearcher( mockPaper );
@@ -178,7 +203,7 @@ describe( "gets the sentence beginnings and the count of consecutive duplicates.
 		expect( getSentenceBeginnings( mockPaper, researcher )[ 1 ].count ).toBe( 1 );
 	} );
 
-	/*it( "returns an object with sentence beginnings and counts for two sentences in German starting with different words.", function() {
+	/* it( "returns an object with sentence beginnings and counts for two sentences in German starting with different words.", function() {
 		mockPaper = new Paper( "Ich bin wie du. Auf wiedersehen. ", { locale: "de_DE" } );
 		researcher = new GermanResearcher( mockPaper );
 		expect( getSentenceBeginnings( mockPaper, researcher )[ 0 ].word ).toBe( "ich" );
@@ -502,7 +527,7 @@ describe( "gets the sentence beginnings and the count of consecutive duplicates.
 		expect( getSentenceBeginnings( mockPaper, researcher )[ 0 ].count ).toBe( 2 );
 	} );*/
 
-	/*it( "returns an object with sentence beginnings and counts for three sentences all starting with the same words", () => {
+	/* it( "returns an object with sentence beginnings and counts for three sentences all starting with the same words", () => {
 		mockPaper = new Paper( "Οι γάτες είναι χαριτωμένες. Οι γάτες είναι γλυκές. Οι γάτες είναι αξιολάτρευτες.", { locale: "el" } );
 		researcher = new GreekResearcher( mockPaper );
 
@@ -532,7 +557,7 @@ describe( "gets the sentence beginnings and the count of consecutive duplicates.
 		expect( getSentenceBeginnings( mockPaper, researcher )[ 2 ].word ).toBe( "αυτός ο άνδρας" );
 	} );
 
-	/*it( "returns an object with sentence beginnings and counts for two sentences in Japanese starting with different words.", function() {
+	/* it( "returns an object with sentence beginnings and counts for two sentences in Japanese starting with different words.", function() {
 		// https://tatoeba.org/en/sentences/show/425148
 		// https://tatoeba.org/en/sentences/show/9431906
 		mockPaper = new Paper( "私たちはよくチェスをします。チェスは難しい。", { locale: "ja_JP" } );

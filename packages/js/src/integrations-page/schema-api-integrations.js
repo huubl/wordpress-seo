@@ -58,7 +58,7 @@ const integrations = [
 			"Yoast SEO"
 		),
 		isPremium: false,
-		isNew: true,
+		isNew: false,
 		isMultisiteAvailable: true,
 		logo: SSPLogo,
 	},
@@ -85,7 +85,7 @@ const integrations = [
 			"Yoast SEO"
 		),
 		isPremium: true,
-		isNew: true,
+		isNew: false,
 		isMultisiteAvailable: true,
 		logo: EDDLogo,
 	},
@@ -111,7 +111,7 @@ const integrations = [
 			"Yoast SEO"
 		),
 		isPremium: false,
-		isNew: true,
+		isNew: false,
 		isMultisiteAvailable: true,
 		logo: RecipeMakerLogo,
 	},
@@ -157,6 +157,7 @@ const SchemaAPIIntegrations = [
 /* eslint-disable dot-notation */
 SchemaAPIIntegrations.push(
 	<WoocommerceIntegration
+		key={ integrations.length + 1 }
 		integration={ wooIntegration }
 		isActive={ Boolean( window.wpseoIntegrationsData[ "woocommerce_seo_active" ] ) }
 		isInstalled={ Boolean( window.wpseoIntegrationsData[ "woocommerce_seo_installed" ] ) }

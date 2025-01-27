@@ -77,31 +77,33 @@ export const AlgoliaIntegration = ( {
 					/> }
 					<span className="yst-sr-only">
 						{
+							/* translators: Hidden accessibility text. */
 							__( "(Opens in a new browser tab)", "wordpress-seo" )
 						}
 					</span>
 				</Link>
-				{ ( ! isNetworkControlEnabled && isMultisiteAvailable ) && <Badge className="yst-absolute yst-top-2 yst-right-2">{ __( "Network Disabled", "wordpress-seo" ) }</Badge> }
-				{ ( isNetworkControlEnabled && integration.isNew ) && <Badge className="yst-absolute yst-top-2 yst-right-2">{ __( "New", "wordpress-seo" ) }</Badge> }
+				{ ( ! isNetworkControlEnabled && isMultisiteAvailable ) && <Badge className="yst-absolute yst-top-2 yst-end-2">{ __( "Network Disabled", "wordpress-seo" ) }</Badge> }
+				{ ( isNetworkControlEnabled && integration.isNew ) && <Badge className="yst-absolute yst-top-2 yst-end-2">{ __( "New", "wordpress-seo" ) }</Badge> }
 			</Card.Header>
 			<Card.Content>
 				<div>
-					<h4 className="yst-flex yst-items-center yst-text-base yst-mb-3 yst-font-medium yst-text-[#111827] yst-leading-tight">
-						<span>{ integration.claim && integration.claim }</span>
-					</h4>
+					{ integration.claim && <h4 className="yst-text-base yst-mb-3 yst-font-medium yst-text-[#111827] yst-leading-tight">
+						{ integration.claim }
+					</h4> }
 					<p> { integration.description }
 						{ integration.learnMoreLink && <Link
 							href={ integration.learnMoreLink }
 							className="yst-flex yst-items-center yst-mt-3 yst-no-underline yst-font-medium"
 							target="_blank"
 						>
-							Learn more
+							{ __( "Learn more", "wordpress-seo" ) }
 							<span className="yst-sr-only">
 								{
+									/* translators: Hidden accessibility text. */
 									__( "(Opens in a new browser tab)", "wordpress-seo" )
 								}
 							</span>
-							<ArrowSmRightIcon className="yst-h-4 yst-w-4 yst-ml-1 yst-icon-rtl" />
+							<ArrowSmRightIcon className="yst-h-4 yst-w-4 yst-ms-1 yst-icon-rtl" />
 						</Link> }
 					</p>
 				</div>
@@ -131,11 +133,12 @@ export const AlgoliaIntegration = ( {
 					target="_blank"
 				>
 					<LockOpenIcon
-						className="yst--ml-1 yst-mr-2 yst-h-5 yst-w-5 yst-text-yellow-900"
+						className="yst--ms-1 yst-me-2 yst-h-5 yst-w-5 yst-text-yellow-900"
 					/>
 					{ __( "Unlock with Premium", "wordpress-seo" ) }
 					<span className="yst-sr-only">
 						{
+							/* translators: Hidden accessibility text. */
 							__( "(Opens in a new browser tab)", "wordpress-seo" )
 						}
 					</span>
@@ -165,7 +168,7 @@ export const AlgoliaIntegration = ( {
 AlgoliaIntegration.propTypes = {
 	integration: PropTypes.shape( {
 		name: PropTypes.string,
-		claim: PropTypes.string,
+		claim: PropTypes.node,
 		learnMoreLink: PropTypes.string,
 		logoLink: PropTypes.string,
 		slug: PropTypes.string,

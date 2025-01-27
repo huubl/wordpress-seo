@@ -265,8 +265,8 @@ const MobilePartContainer = styled.div`
 `;
 
 const SiteName = styled.div`
-	line-height: 18x; 
-	font-size: 14px; 
+	line-height: 18x;
+	font-size: 14px;
 	color: black;
 	max-width: ${ props => props.screenMode === MODE_DESKTOP ? "100%" : MOBILE_SITENAME_LIMIT };
 	overflow: hidden;
@@ -403,7 +403,6 @@ function highlightWords( locale, wordsToHighlight, text, cleanText ) {
  * @returns {ReactComponent} The vertical dots.
  */
 const VerticalDots = ( { screenMode } ) => {
-	/* eslint-disable max-len */
 	return <svg
 		xmlns="http://www.w3.org/2000/svg"
 		viewBox="0 0 24 24"
@@ -412,7 +411,6 @@ const VerticalDots = ( { screenMode } ) => {
 	>
 		<path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
 	</svg>;
-	/* eslint-enable max-len */
 };
 
 VerticalDots.propTypes = {
@@ -553,7 +551,6 @@ export default class SnippetPreview extends PureComponent {
 	getDescription() {
 		if ( ! this.props.description ) {
 			return __(
-				// eslint-disable-next-line max-len
 				"Please provide a meta description by editing the snippet below. If you don’t, Google will try to find a relevant part of your post to show in the search results.",
 				"wordpress-seo"
 			);
@@ -659,10 +656,12 @@ export default class SnippetPreview extends PureComponent {
 		 * The jsx-a11y eslint plugin is asking for an onFocus accompanying the onMouseEnter.
 		 * However this is not relevant in this case, because the url is not focusable.
 		 */
-		/* eslint-disable jsx-a11y/mouse-events-have-key-events */
 		return <React.Fragment>
 			<ScreenReaderText>
-				{ __( "Url preview", "wordpress-seo" ) + ":" }
+				{
+					/* translators: Hidden accessibility text. */
+					__( "Url preview", "wordpress-seo" ) + ":"
+				}
 			</ScreenReaderText>
 			<Url>
 				<BaseUrlOverflowContainer
@@ -686,38 +685,30 @@ export default class SnippetPreview extends PureComponent {
 				</BaseUrlOverflowContainer>
 			</Url>
 		</React.Fragment>;
-		/* eslint-enable jsx-a11y/mouse-events-have-key-events */
 	}
 
-	/**
-	 * Before we receive props we need to set the title and description in the
-	 * state.
-	 *
-	 * @param {Object} nextProps The props this component will receive.
-	 *
-	 * @returns {void}
-	 */
-	componentWillReceiveProps( nextProps ) {
-		const nextState = {};
-
-		if ( this.props.title !== nextProps.title ) {
-			nextState.title = nextProps.title;
-		}
-
-		if ( this.props.description !== nextProps.description ) {
-			nextState.description = nextProps.description;
-		}
-
-		this.setState( nextState );
-	}
 
 	/**
 	 * After a component updates we need to fit the title.
+	 * Before we receive props we need to set the title and description in the state.
+	 *
+	 * @param {Object} prevProps The previous props this component has received.
 	 *
 	 * @returns {void}
 	 */
-	componentDidUpdate() {
+	componentDidUpdate( prevProps ) {
+		const nextState = {};
+
+		if ( this.props.title !== prevProps.title ) {
+			nextState.title = this.props.title;
+		}
+
+		if ( this.props.description !== prevProps.description ) {
+			nextState.description = this.props.description;
+		}
+
 		this.setState( {
+			...nextState,
 			isDescriptionPlaceholder: ( ! this.props.description ),
 		} );
 
@@ -836,7 +827,10 @@ export default class SnippetPreview extends PureComponent {
 			return (
 				<PartContainer className="yoast-shopping-data-preview--desktop">
 					<ScreenReaderText>
-						{ __( "Shopping data preview:", "wordpress-seo" ) }
+						{
+							/* translators: Hidden accessibility text. */
+							__( "Shopping data preview:", "wordpress-seo" )
+						}
 					</ScreenReaderText>
 					<ProductDataDesktop shoppingData={ safeShoppingData } />
 				</PartContainer>
@@ -847,7 +841,10 @@ export default class SnippetPreview extends PureComponent {
 			return (
 				<PartContainer className="yoast-shopping-data-preview--mobile">
 					<ScreenReaderText>
-						{ __( "Shopping data preview:", "wordpress-seo" ) }
+						{
+							/* translators: Hidden accessibility text. */
+							__( "Shopping data preview:", "wordpress-seo" )
+						}
 					</ScreenReaderText>
 					<ProductDataMobile shoppingData={ safeShoppingData } />
 				</PartContainer>
@@ -886,11 +883,11 @@ export default class SnippetPreview extends PureComponent {
 		 * However this is not relevant in this case, because the title and description are
 		 * not focusable.
 		 */
-		/* eslint-disable jsx-a11y/mouse-events-have-key-events */
 		return (
-			<section>
+			<section className="yoast-snippet-preview-section">
 				<Container
 					id="yoast-snippet-preview-container"
+					className="yoast-snippet-preview-container"
 					/*
 					 * MobileContainer doesn't use the width prop: avoid to
 					 * render an invalid `width` HTML attribute on the DOM node.
@@ -926,7 +923,6 @@ export default class SnippetPreview extends PureComponent {
 				</Container>
 			</section>
 		);
-	/* eslint-enable jsx-a11y/mouse-events-have-key-events */
 	}
 
 	/**

@@ -1,18 +1,27 @@
 /* External dependencies */
+import { ChartBarIcon } from "@heroicons/react/solid";
 import { Fragment, useCallback } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
+import { useSvgAria } from "@yoast/ui-library/src";
 import PropTypes from "prop-types";
+import styled from "styled-components";
 
 /* Yoast dependencies */
-import { colors } from "@yoast/style-guide";
+import { MetaboxButton } from "./MetaboxButton";
 
 /* Internal dependencies */
 import { ModalContainer } from "./modals/Container";
 import Modal from "./modals/Modal";
 import { ReactComponent as YoastIcon } from "../../images/Yoast_icon_kader.svg";
-import { isCloseEvent } from "./modals/editorModals/EditorModal.js";
 import SidebarButton from "./SidebarButton";
 import WincherSEOPerformance from "../containers/WincherSEOPerformance";
+
+
+const StyledHeroIcon = styled( ChartBarIcon )`
+	width: 18px;
+	height: 18px;
+	margin: 3px;
+`;
 
 /**
  * Handles the click event on the "Track SEO performance" button.
@@ -21,34 +30,24 @@ import WincherSEOPerformance from "../containers/WincherSEOPerformance";
  *
  * @returns {void}
  */
-export function openModal( props ) {
+function openModal( props ) {
 	const { keyphrases, onNoKeyphraseSet, onOpen, location } = props;
 
 	if ( ! keyphrases.length ) {
 		// This is fragile, should replace with a real React ref.
-		document.querySelector( "#focus-keyword-input-sidebar" ).focus();
+		let input = document.querySelector( "#focus-keyword-input-metabox" );
+
+		// In elementor we use input-sidebar
+		if ( ! input ) {
+			input = document.querySelector( "#focus-keyword-input-sidebar" );
+		}
+		input.focus();
 		onNoKeyphraseSet();
 
 		return;
 	}
 
 	onOpen( location );
-}
-
-/**
- * Handles the close event for the modal.
- *
- * @param {Object} props The props to use.
- * @param {Event} event The event passed to the closeModal.
- *
- * @returns {void}
- */
-export function closeModal( props, event ) {
-	if ( ! isCloseEvent( event ) ) {
-		return;
-	}
-
-	props.onClose();
 }
 
 /**
@@ -65,20 +64,18 @@ export default function WincherSEOPerformanceModal( props ) {
 		openModal( props );
 	}, [ openModal, props ] );
 
-	const onModalClose = useCallback( ( event ) => {
-		closeModal( props, event );
-	}, [ closeModal, props ] );
-
 	const title = __( "Track SEO performance", "wordpress-seo" );
+
+	const svgAriaProps = useSvgAria();
 
 	return (
 		<Fragment>
 			{ whichModalOpen === location &&
 			<Modal
 				title={ title }
-				onRequestClose={ onModalClose }
+				onRequestClose={ props.onClose }
 				icon={ <YoastIcon /> }
-				additionalClassName="yoast-wincher-seo-performance-modal"
+				additionalClassName="yoast-wincher-seo-performance-modal yoast-gutenberg-modal__no-padding"
 				shouldCloseOnClickOutside={ shouldCloseOnClickOutside }
 			>
 				<ModalContainer
@@ -93,11 +90,22 @@ export default function WincherSEOPerformanceModal( props ) {
 			<SidebarButton
 				id={ `wincher-open-button-${location}` }
 				title={ title }
-				suffixIcon={ { size: "20px", icon: "pencil-square" } }
-				prefixIcon={ { icon: "chart-square-bar", color: colors.$color_grey_medium_dark } }
+				SuffixHeroIcon={ <StyledHeroIcon className="yst-text-slate-500" { ...svgAriaProps } /> }
 				onClick={ onModalOpen }
 			/>
 			}
+
+			{ location === "metabox" && (
+				<div className="yst-root">
+					<MetaboxButton
+						id={ `wincher-open-button-${location}` }
+						onClick={ onModalOpen }
+					>
+						<MetaboxButton.Text>{ title }</MetaboxButton.Text>
+						<ChartBarIcon className="yst-h-5 yst-w-5 yst-text-slate-500" { ...svgAriaProps } />
+					</MetaboxButton>
+				</div>
+			) }
 		</Fragment>
 	);
 }
@@ -111,6 +119,10 @@ WincherSEOPerformanceModal.propTypes = {
 		"postpublish",
 	] ),
 	shouldCloseOnClickOutside: PropTypes.bool,
+	keyphrases: PropTypes.array.isRequired,
+	onNoKeyphraseSet: PropTypes.func.isRequired,
+	onOpen: PropTypes.func.isRequired,
+	onClose: PropTypes.func.isRequired,
 };
 
 WincherSEOPerformanceModal.defaultProps = {

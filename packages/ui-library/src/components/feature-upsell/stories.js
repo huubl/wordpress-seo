@@ -1,13 +1,33 @@
+import React from "react";
 import FeatureUpsell from ".";
+import { InteractiveDocsPage } from "../../../.storybook/interactive-docs-page";
+import { card, component } from "./docs";
+
+export const Factory = {
+	parameters: {
+		controls: { disable: false },
+	},
+};
+
+export const Card = {
+	parameters: {
+		controls: { disable: false },
+		docs: { description: { story: card } },
+	},
+	args: {
+		variant: "card",
+		cardLink: "#",
+		cardText: "Upgrade",
+	},
+};
 
 export default {
 	title: "2) Components/Feature upsell",
 	component: FeatureUpsell,
 	parameters: {
 		docs: {
-			description: {
-				component: "A feature upsell component.",
-			},
+			description: { component },
+			page: () => <InteractiveDocsPage stories={ [ Card ] } />,
 		},
 	},
 	argTypes: {
@@ -15,26 +35,5 @@ export default {
 	},
 	args: {
 		children: <p className="yst-p-2 yst-bg-blue-700 yst-text-white">Content that will be grayscale.</p>,
-	},
-};
-
-const Template = args => <FeatureUpsell { ...args } />;
-
-export const Factory = Template.bind( {} );
-Factory.parameters = {
-	controls: { disable: false },
-};
-
-export const Card = Template.bind( {} );
-Card.args = {
-	variant: "card",
-	cardLink: "#",
-	cardText: "Upgrade",
-};
-Card.parameters = {
-	docs: {
-		description: {
-			story: "When using the `card` variant. You should provide a `cardLink` and a `cardText`.",
-		},
 	},
 };

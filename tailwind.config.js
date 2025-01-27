@@ -4,6 +4,7 @@ module.exports = {
 	presets: [ preset ],
 	content: [
 		"./packages/ui-library/src/**/!(stories).js",
+		"./packages/related-keyphrase-suggestions/src/**/!(stories).js",
 		"./packages/js/src/**/*.js",
 		"./src/integrations/settings-integration.php",
 	],
@@ -23,6 +24,19 @@ module.exports = {
 			},
 			animation: {
 				slideRight: "slideRight .5s ease-in-out forwards",
+			},
+			fontFamily: {
+				wp: [
+					"-apple-system",
+					"BlinkMacSystemFont",
+					"Segoe UI",
+					"Roboto",
+					"Oxygen-Sans",
+					"Ubuntu",
+					"Cantarell",
+					"Helvetica Neue",
+					"sans-serif",
+				],
 			},
 		},
 	},
